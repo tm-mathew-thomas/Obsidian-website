@@ -8,7 +8,7 @@ const {
 } = require('stream');
 
 const bench = common.createBenchmark(main, {
-  n: [50e6],
+  n: [1e6],
   kind: ['duplex', 'readable', 'transform', 'writable'],
 });
 
@@ -20,7 +20,7 @@ function main({ n, kind }) {
 
       bench.start();
       for (let i = 0; i < n; ++i)
-        new Duplex();
+        new Duplex().destroy();
       bench.end(n);
       break;
     case 'readable':
@@ -29,7 +29,7 @@ function main({ n, kind }) {
 
       bench.start();
       for (let i = 0; i < n; ++i)
-        new Readable();
+        new Readable().destroy();
       bench.end(n);
       break;
     case 'writable':
@@ -38,7 +38,7 @@ function main({ n, kind }) {
 
       bench.start();
       for (let i = 0; i < n; ++i)
-        new Writable();
+        new Writable().destroy();
       bench.end(n);
       break;
     case 'transform':
@@ -47,7 +47,7 @@ function main({ n, kind }) {
 
       bench.start();
       for (let i = 0; i < n; ++i)
-        new Transform();
+        new Transform().destroy();
       bench.end(n);
       break;
     default:

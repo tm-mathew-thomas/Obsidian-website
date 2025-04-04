@@ -8,9 +8,9 @@ const bench = common.createBenchmark(main, {
 });
 
 function main({ n }) {
-  const b = Buffer.alloc(1024);
-  const r = new Readable();
-  const w = new Writable();
+  const b = {};
+  const r = new Readable({ objectMode: true });
+  const w = new Writable({ objectMode: true });
 
   let i = 0;
 
