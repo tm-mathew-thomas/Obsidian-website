@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block title %}Repo Updates{% endblock %}
+{% block inner_content %}
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h4 class="card-title">Repo Updates</h4>
+    <h6 class="card-subtitle mb-2 text-muted"> The last {{ packages|length }} repo updates {% if repo_filter %}({{ repo_filter }}){% endif %}</h6>
+  </div>
+  <div class="card-body overflow-auto">
+
+    <p class="text-muted">
+        Everything listed here can be installed/updated via pacman. Depending on
+        the mirror used, there might be a slight delay.
+    </p>
+
+    <form class="row g-2 align-items-center" action="{{ url_for('updates') }}" method="get">
+        <div class="col-auto">
+            Repositories:
+        </div>
+
+        <div class="col-auto">
+            <select name="repo" class="form-select form-select-sm" onchange="this.form.submit()">
+              <option {{ "selected" if not repo_filter or "" }} value="">All</option>
+              {% for r in repos %}
+              <option value="{{ r.name }}" {{ "selected" if repo_filter == r.name or "" }}>{{ r.name }}</option>
+              {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <br>
+
+   <table class="table table-hover table-sm">
+      <thead>
+        <tr>
+          <th>Build Date</th>
+          <th>Repo</th>
+          <th>Binary Package</th>
+          <th>Version</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for p in packages %}
+        <tr>
+          <td class="mytooltip">
+            {{ (p.builddate|timestamp).split()[0] }}
+            <template class="mytooltip-content">
+                {{ p.builddate|timestamp }} <span class="text-muted">(UTC)</span>
+            </template>
+          </td>
+          <td>{{ p.repo }}</td>
+          <td><a href="{{ package_url(p) }}">{{ p.name }}</a></td>
+          <td class="text-version">{{ p.version }}</td>
+        </tr>
+      {% endfor %}
+        <tr>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

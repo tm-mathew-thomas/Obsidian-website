@@ -1,0 +1,38 @@
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('queue') else '' }}" href="{{ url_for('queue') }}">Pending Updates</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('updates') else '' }}" href="{{ url_for('updates') }}">Repo Updates</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('outofdate') else '' }}" href="{{ url_for('outofdate') }}">Outdated Packages</a>
+</li>
+<hr>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('repos') else '' }}" href="{{ url_for('repos') }}">Repos</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('base') else '' }}" href="{{ url_for('baseindex') }}">Base Packages</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('packages') else '' }}" href="{{ url_for('packages') }}">Packages</a>
+  </li>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('basegroups') else '' }}" href="{{ url_for('basegroups') }}">Base Groups</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link {{ 'active' if is_endpoint('groups') else '' }}" href="{{ url_for('groups') }}">Groups</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('security') else '' }}" href="{{ url_for('security') }}">Security</a>
+  </li>
+<li class="nav-item">
+  <a class="nav-link {{ 'active' if is_endpoint('search') else '' }}" href="{{ url_for('search') }}">Search</a>
+</li>
+<hr>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('stats') else '' }}" href="{{ url_for('stats') }}">Traffic Stats</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link {{ 'active' if is_endpoint('mirrors') else '' }}" href="{{ url_for('mirrors') }}">Mirrors</a>
+</li>

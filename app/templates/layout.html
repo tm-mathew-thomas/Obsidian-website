@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <script src="{{ url_for('static', path='/theme.js') }}"></script>
+        <script type="module" src="{{ url_for('static', path='/index.js') }}"></script>
+        <link rel="preload" href="{{ url_for('static', path='fonts/roboto-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="{{ url_for('static', path='fonts/roboto-latin-700-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+        <link rel="shortcut icon" href="{{ url_for('static', path='images/favicon.ico') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', path='index.css') }}">
+
+        <title>{% block title %}{% endblock %} - MSYS2 Packages</title>
+    </head>
+    <body>
+    <nav class="navbar navbar-expand-md navbar-light fixed-top bg-body-tertiary">
+      <a class="navbar-brand" href="{{ url_for('index') }}" style="line-height: 2em">
+          <img src="{{ url_for('static', path='images/logo.svg') }}" style="width:2em;height:2em;margin-right:0.5em;border-radius:.25rem" class="d-inline-block align-top" alt="MSYS2"> MSYS2 Packages
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        {% if not is_endpoint('search') %}
+        <form class="ms-auto input-group input-group-sm" style="width: auto" action="{{ url_for('search') }}" method="get">
+            <input class="form-control" type="search" name="q" placeholder="Package Search" aria-label="Package Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+        {% endif %}
+        <div class="d-block d-md-none">
+          <ul class="navbar-nav me-auto">
+            {% include 'navbar.html' %}
+          </ul>
+        </div>
+        <div class="ms-auto navbar-buttons">
+            <input type="checkbox" class="btn-check" id="dark-mode-check" autocomplete="off">
+            <label class="btn btn-sm btn-outline-secondary" for="dark-mode-check" id="dark-mode-label"></label>
+          <a href="https://www.msys2.org" class="btn btn-sm btn-outline-primary ml-auto">Get MSYS2</a>
+          <a href="https://github.com/msys2/msys2-web" class="btn btn-sm
+          btn-outline-info">Fork on GitHub</a>
+          <a href="{{ url_for('api', path='/') }}" class="btn btn-sm btn-outline-success">API</a>
+        </div>
+      </div>
+    </nav>
+
+<div class="container-xl">
+<div class="container-fluid p-0 p-md-2">
+  <div class="row">
+        <div class="col-md-2 p-0 px-2 text-center text-md-start d-none d-md-block">
+            <div class="sticky-top bg-body-tertiary card overflow-hidden">
+             <ul class="nav flex-column">
+                {% include 'navbar.html' %}
+            </ul>
+            </div>
+        </div>
+        <div class="col-md-10 p-0" id="main">
+{% block inner_content %}
+{% endblock %}
+        </div>
+  </div>
+</div>
+<div>
+    <small class="text-muted">
+        Last Update: {{ update_timestamp()|timestamp }}
+        [<a href="#" id="refresh-link" title="Request the backend to fetch new data from external sources">Request update</a>]
+    </small>
+</div>
+</div>
+
+    </body>
+
+    <script type="module">
+        let button = document.getElementById('refresh-link');
+        button.addEventListener('click', (event) => {
+          fetch('/api/trigger_update', {method: 'POST'});
+          event.preventDefault();
+        });
+    </script>
+</html>

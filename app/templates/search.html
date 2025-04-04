@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% block title %}Search{% endblock %}
+{% block inner_content %}
+
+
+<div class="card">
+  <div class="card-body overflow-auto">
+
+    <form class="row g-2 align-items-center" action="{{ url_for('search') }}" method="get">
+
+        <div class="col-auto">
+            Search in
+        </div>
+
+        <div class="col-auto">
+            <select name="t" class="form-select form-select-sm">
+                <option value="pkg" {{ "selected" if qtype == 'pkg' or not qtype else "" }}>Base Packages</option>
+                <option value="binpkg" {{ "selected" if qtype == 'binpkg' or not qtype else "" }}>Packages</option>
+            </select>
+        </div>
+
+        <div class="col-auto">
+            for
+        </div>
+
+        <div class="col-auto">
+            <input class="form-control form-control-sm" type="text" aria-label="Search" name="q" value="{{ query }}">
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0" type="submit">Search</button>
+        </div>
+    </form>
+
+  </div>
+</div>
+
+<br>
+
+{% if query %}
+
+{% if qtype == 'pkg' %}
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h4 class="card-title">Search results for "{{ query }}"</h4>
+    <h6 class="card-subtitle mb-2 text-muted">Base packages matching the search query</h6>
+  </div>
+  <div class="card-body overflow-auto">
+    <table class="table table-hover table-sm" style="table-layout: fixed; width:100%;">
+      <colgroup>
+        <col style="width: 25%">
+        <col style="width: 15%">
+        <col style="width: 60%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Base Package</th>
+          <th>Version</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for score, s in results %}
+        <tr>
+          <td><a href="{{ url_for('base', base_name=s.name) }}">{{ s.name }}</a></td>
+          <td>{{ s.version }}</td>
+          <td>{{ s.desc }}</td>
+         </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% elif qtype == 'binpkg' %}
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h4 class="card-title">Search results for "{{ query }}"</h4>
+    <h6 class="card-subtitle mb-2 text-muted">Packages matching the search query</h6>
+  </div>
+  <div class="card-body overflow-auto">
+    <table class="table table-hover table-sm" style="table-layout: fixed; width:100%;">
+      <colgroup>
+          <col style="width: 25%">
+          <col style="width: 15%">
+          <col style="width: 60%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Package</th>
+          <th>Version</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for score, p in results %}
+        <tr>
+          <td><a href="{{ package_url(p) }}">{{ p.name }}</td>
+          <td>{{ p.version }}</td>
+          <td>{{ p.desc }}</td>
+         </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

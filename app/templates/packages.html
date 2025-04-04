@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}Packages{% endblock %}
+{% block inner_content %}
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h4 class="card-title">Packages</h4>
+    <h6 class="card-subtitle mb-2 text-muted">{{ packages|length }} packages {% if repo_filter %}({{ repo_filter }}){% endif %}</h6>
+  </div>
+  <div class="card-body overflow-auto">
+
+    <form class="row g-2 align-items-center" action="{{ url_for('packages') }}" method="get">
+        <div class="col-auto">
+            Repository:
+        </div>
+
+        <div class="col-auto">
+            <select name="repo" class="form-select form-select-sm" onchange="this.form.submit()">
+              {% for r in repos %}
+              <option value="{{ r.name }}" {{ "selected" if repo_filter == r.name or "" }}>{{ r.name }}</option>
+              {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <br>
+
+    <table class="table table-hover table-sm" style="table-layout: fixed; width:100%;">
+      <colgroup>
+        <col style="width: 25%">
+        <col style="width: 15%">
+        <col style="width: 60%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Package</th>
+          <th>Version</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s, p in packages %}
+        <tr>
+          <td><a href="{{ package_url(p) }}">{{ p.name }}</a></td>
+          <td>{{ p.version }}</td>
+          <td>{{ p.desc }}</td>
+         </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

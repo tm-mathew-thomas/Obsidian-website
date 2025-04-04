@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block title %}Base Packages{% endblock %}
+{% block inner_content %}
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h4 class="card-title">Base Packages</h4>
+    <h6 class="card-subtitle mb-2 text-muted">{{ sources|length }} base packages</h6>
+  </div>
+  <div class="card-body overflow-auto">
+
+    <form class="row g-2 align-items-center" action="{{ url_for('baseindex') }}" method="get">
+        <div class="col-auto">
+            Repository:
+        </div>
+
+        <div class="col-auto">
+            <select name="repo" class="form-select form-select-sm" onchange="this.form.submit()">
+              <option {{ "selected" if not repo_filter or "" }} value="">All</option>
+              {% for r in repos %}
+              <option value="{{ r.name }}" {{ "selected" if repo_filter == r.name or "" }}>{{ r.name }}</option>
+              {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <br>
+
+    <table class="table table-hover table-sm" style="table-layout: fixed; width:100%;">
+      <colgroup>
+          <col style="width: 25%">
+          <col style="width: 15%">
+          <col style="width: 60%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Base Package</th>
+          <th>Version</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in sources %}
+        <tr>
+          <td><a href="{{ url_for('base', base_name=s.name) }}">{{ s.name }}</a></td>
+          <td>{{ s.version }}</td>
+          <td>{{ s.desc }}</td>
+         </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

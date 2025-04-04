@@ -1,0 +1,262 @@
+{% extends "layout.html" %}
+{% block title %}Package: {{ packages[0][1].name if packages else '' }}{% endblock %}
+{% block inner_content %}
+
+{% for s, p in packages %}
+<div class="card mb-3">
+  <div class="card-header">
+    <h4 class="card-title">Package: <a href="{{ package_url(p) }}">{{ p.name }}</a></h4>
+  </div>
+  <div class="card-header text-muted">
+    <div class="row">
+        <div class="col-sm border-end text-center">
+            <a href="{{ s.source_url }}" class="card-link">Source Files</a>
+        </div>
+        <div class="col-sm border-end text-center">
+            <a href="{{ s.history_url }}" class="card-link">View Changes</a>
+        </div>
+        <div class="col-sm border-end text-center">
+            <a href="{{ s.searchbug_url }}" class="card-link">View Issues</a>
+        </div>
+        <div class="col-sm text-center">
+            <a href="{{ s.filebug_url }}" class="card-link">Report Issue</a>
+        </div>
+    </div>
+  </div>
+  <div class="card-body overflow-auto">
+    <dl class="row">
+      <dt class="col-sm-3 text-sm-end">Base Package:</dt>
+      <dd class="col-sm-9"><a href="{{ url_for('base', base_name=p.base) }}">{{ p.base }}</a></dd>
+
+      <dt class="col-sm-3 text-sm-end"></dt>
+      <dd class="col-sm-9"><hr></dd>
+
+      <dt class="col-sm-3 text-sm-end">Description:</dt>
+      <dd class="col-sm-9">
+        {{ p.desc }}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Group(s):</dt>
+      <dd class="col-sm-9">
+        {% for g in p.groups %}
+        <a href="{{ url_for('groups', group_name=g) }}">{{ g }}</a>{{ ", " if not loop.last else "" }}
+        {% else %}
+        -
+        {% endfor %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Repo:</dt>
+      <dd class="col-sm-9">{{ p.repo }}</dd>
+
+      {% for name, url in p.urls %}
+      <dt class="col-sm-3 text-sm-end">{{ name }}:</dt>
+      <dd class="col-sm-9">
+        <a href="{{ url }}">{{ url }}</a>
+      </dd>
+      {% endfor %}
+
+      <dt class="col-sm-3 text-sm-end">License(s):</dt>
+      <dd class="col-sm-9">{{ licenses_to_html(p.licenses)|safe }}</dd>
+
+      <dt class="col-sm-3 text-sm-end">Version:</dt>
+      <dd class="col-sm-9">{{ p.version }}{% if p.version != s.git_version %} <span class="text-muted small align-text-bottom ps-1">(<a href="{{ s.source_url }}">{{ s.git_version }}</a> in git)</span>{% endif %}</dd>
+
+      <dt class="col-sm-3 text-sm-end mb-2">External:</dt>
+      <dd class="col-sm-9">
+        <dl class="row mb-0">
+        {% for ext_id, info in s.external_infos %}
+          <dt class="text-muted small">{{ ext_id.name }}</dt>
+          <dd>
+            <a href="{{ info.url }}">{{ info.version or info.name }}</a>
+            {% for url, label in info.other_urls|dictsort %}
+            | <a href="{{ url }}">{{ label }}</a>
+            {% endfor %}
+          </dd>
+        {% endfor %}
+        </dl>
+      </dd>
+
+    {% if s.all_vulnerabilities %}
+    <dt class="col-sm-3 text-sm-end">Vulnerabilities:</dt>
+    <dd class="col-sm-9">
+      <ul class="list-unstyled">
+        {% for vuln in s.all_vulnerabilities %}
+        <li {% if vuln.ignored %}style="text-decoration: line-through"{% endif %}><a href="{{ vuln.url }}">{{ vuln.id }}</a> <span class="opacity-75 text-{{vulnerability_color(vuln)}}">({{ vuln.severity }})</span></li>
+        {% endfor %}
+      </ul>
+    </dd>
+    {% endif%}
+
+      <dt class="col-sm-3 text-sm-end"></dt>
+      <dd class="col-sm-9"><hr></dd>
+
+      <dt class="col-sm-3 text-sm-end">Installation:</dt>
+      <dd class="col-sm-9">
+        <div class="copyable rounded">
+          <div class="highlight">
+            <pre><code>pacman -S {{ p.name }}</code></pre>
+          </div>
+          <button class="btn" aria-label="Copy to clipboard" onclick="App.copyToClipboard(this);">📋</button>
+        </div>
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">File:</dt>
+      <dd class="col-sm-9"> <a href="{{ p.fileurl }}">{{ p.fileurl }}</a></dd>
+
+      <dt class="col-sm-3 text-sm-end">SHA256:</dt>
+      <dd class="col-sm-9"><code>{{ p.sha256sum }}</code></dd>
+
+      <dt class="col-sm-3 text-sm-end">Last Packager:</dt>
+      <dd class="col-sm-9">{{ p.packager.name }}</dd>
+
+      <dt class="col-sm-3 text-sm-end">Build Date:</dt>
+      <dd class="col-sm-9">{{ p.builddate|timestamp }}</dd>
+
+      <dt class="col-sm-3 text-sm-end">Package Size:</dt>
+      <dd class="col-sm-9">{{ p.csize|filesize }}</dd>
+
+      <dt class="col-sm-3 text-sm-end">Installed Size:</dt>
+      <dd class="col-sm-9">{{ p.isize|filesize }}</dd>
+
+      <dt class="col-sm-3 text-sm-end">Source-Only Tarball:</dt>
+      <dd class="col-sm-9"><a href="{{ p.source_only_tarball_url }}">{{ p.source_only_tarball_url }}</a></dd>
+
+      <dt class="col-sm-3 text-sm-end"></dt>
+      <dd class="col-sm-9"><hr></dd>
+
+      <dt class="col-sm-3 text-sm-end">Dependencies:</dt>
+      <dd class="col-sm-9">
+        {% if p.depends %}
+            <ul class="list-unstyled">
+                {% for d, r in p.depends|dictsort %}
+                    <li><a href="{{ package_url(p, d) }}">{{ d }}</a>{% if r %} <span class="text-muted">{{ r|sort|join(', ') }}</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Optional Dependencies:</dt>
+      <dd class="col-sm-9">
+        {% if p.optdepends %}
+            <ul class="list-unstyled">
+                {% for d, reason in p.optdepends|dictsort %}
+                    <li><a href="{{ package_url(p, d) }}">{{ d }}</a>{% if reason %} <span class="text-muted">({{ reason|sort|join(', ') }})</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Build Dependencies:</dt>
+      <dd class="col-sm-9">
+        {% if p.makedepends %}
+            <ul class="list-unstyled">
+                {% for d, r in p.makedepends|dictsort %}
+                    <li><a href="{{ package_url(p, d) }}">{{ d }}</a>{% if r %} <span class="text-muted">{{ r|sort|join(', ') }}</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Check Dependencies:</dt>
+      <dd class="col-sm-9">
+        {% if p.checkdepends %}
+            <ul class="list-unstyled">
+                {% for d, r in p.checkdepends|dictsort %}
+                    <li><a href="{{ package_url(p, d) }}">{{ d }}</a>{% if r %} <span class="text-muted">{{ r|sort|join(', ') }}</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Provides:</dt>
+      <dd class="col-sm-9">
+        {% if p.provides %}
+            <ul class="list-unstyled">
+                {% for d, r in p.provides|dictsort %}
+                    <li><a href="{{ package_url(p, d) }}">{{ d }}</a>{% if r %} <span class="text-muted">{{ r|sort|join(', ') }}</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Conflicts:</dt>
+      <dd class="col-sm-9">
+        {% if p.conflicts %}
+            <ul class="list-unstyled">
+                {% for d, r in p.conflicts|dictsort %}
+                    <li><a href="{{ package_url(p, d) }}">{{ d }}</a>{% if r %} <span class="text-muted">{{ r|sort|join(', ') }}</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Replaces:</dt>
+      <dd class="col-sm-9">
+        {% if p.replaces %}
+            <ul class="list-unstyled">
+                {% for d, r in p.replaces|dictsort %}
+                    <li><a href="{{ package_url(p, d) }}">{{ d }}</a>{% if r %} <span class="text-muted">{{ r|sort|join(', ') }}</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end"></dt>
+      <dd class="col-sm-9"><hr></dd>
+
+      <dt class="col-sm-3 text-sm-end">Provided By:</dt>
+      <dd class="col-sm-9">
+        {% if p.provided_by %}
+            <ul class="list-unstyled">
+                {% for p in p.provided_by|sort(attribute='key') %}
+                    <li><a href="{{ package_url(p) }}">{{ p.name }}</a> </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end">Required By:</dt>
+      <dd class="col-sm-9">
+        {% if p.rdepends %}
+            <ul class="list-unstyled">
+                {% for rp, r in p.rdepends|rdepends_sort %}
+                    <li><a href="{{ package_url(rp) }}">{{ rp.name }}</a>{% if r|rdepends_type %} <span class="text-muted">({{ r|rdepends_type|sort|join(', ') }})</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            -
+        {% endif %}
+      </dd>
+
+      <dt class="col-sm-3 text-sm-end"></dt>
+      <dd class="col-sm-9"><hr></dd>
+
+      <dt class="col-sm-3 text-sm-end">Files:</dt>
+      <dd class="col-sm-9 text-nowrap">
+        <pre class="file-list small"><code>{% for f in p.files %}{{ f }}
+{% endfor %}</code></pre>
+      </dd>
+    </dl>
+  </div>
+</div>
+{% else %}
+No packages found
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Groups{% endblock %}
+{% block inner_content %}
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h4 class="card-title">Groups</h4>
+    <h6 class="card-subtitle mb-2 text-muted">{{ groups|length }} package groups</h6>
+  </div>
+  <div class="card-body overflow-auto">
+    <table class="table table-hover table-sm">
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th>Packages</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for g, count in groups|dictsort %}
+        <tr>
+          <td><a href="{{ url_for('groups', group_name=g) }}">{{ g }}</a></td>
+          <td>{{ count }}</td>
+         </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
